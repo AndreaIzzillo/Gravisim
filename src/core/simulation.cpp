@@ -3,11 +3,21 @@
 #include "core_settings.hpp"
 
 Simulation::Simulation()
-    : m_window(sf::VideoMode(sf::Vector2u{Settings::WindowWidth, Settings::WindowHeight}), Settings::WindowTitle)
-    , m_clock()
-    , m_accumulator(sf::Time::Zero)
-    , m_timeScale(1.f)
 {
+    sf::ContextSettings settings;
+    settings.antiAliasingLevel = Settings::AntiAliasingLevel;
+
+    m_window = sf::RenderWindow(
+        sf::VideoMode(sf::Vector2u(Settings::WindowWidth, Settings::WindowHeight)),
+        Settings::WindowTitle,
+        sf::Style::Default,
+        sf::State::Windowed,
+        settings);
+
+    m_clock = sf::Clock();
+    m_accumulator = sf::Time::Zero;
+    m_timeScale = 1.f;
+
     m_window.setFramerateLimit(Settings::TargetFPS);
 }
 
@@ -51,15 +61,19 @@ void Simulation::ProcessEvents()
         {
             if (keyEvent->scancode == sf::Keyboard::Scancode::U)
             {
-                m_timeScale += 1.f;
+                m_timeScale += 0.1f;
             }
             else if (keyEvent->scancode == sf::Keyboard::Scancode::D)
             {
-                m_timeScale = std::max(0.f, m_timeScale - 1.f);
+                m_timeScale = std::max(0.f, m_timeScale - 0.1f);
             }
             else if (keyEvent->scancode == sf::Keyboard::Scancode::R)
             {
                 m_timeScale = 1.f;
+            }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::Space)
+            {
+                m_timeScale = (m_timeScale == 0.f) ? 1.f : 0.f;
             }
         }
     }

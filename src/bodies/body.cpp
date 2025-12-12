@@ -1,5 +1,7 @@
 #include "body.hpp"
 
+#include "../core/core_settings.hpp"
+
 Body::Body(const sf::Vector2f& position, float mass, float radius, const sf::Color& color)
     : m_position(position)
     , m_velocity(0.f, 0.f)
@@ -15,12 +17,32 @@ Body::Body(const sf::Vector2f& position, float mass, float radius, const sf::Col
 void Body::Update(sf::Time deltaTime)
 {
     float dt = deltaTime.asSeconds();
+
     m_position += m_velocity * dt;
     m_shape.setPosition(m_position);
+
+    for (auto& particle : m_trail_particles)
+    {
+        particle.update(deltaTime);
+    }
+
+    m_trail_particles.erase(
+        std::remove_if(
+            m_trail_particles.begin(),
+            m_trail_particles.end(),
+            [](const Particle& p) { return !p.isAlive(); }),
+        m_trail_particles.end());
+
+    m_trail_particles.emplace_back(m_position, m_radius * 0.3f, 1.f);
 }
 
 void Body::Render(sf::RenderWindow& window) const
 {
+    for (const auto& particle : m_trail_particles)
+    {
+        particle.render(window);
+    }
+    
     window.draw(m_shape);
 }
 
@@ -33,17 +55,18 @@ void Body::ApplyForce(const sf::Vector2f& force, sf::Time deltaTime)
 
 void Body::ApplyGravityFromSingle(const Body& other, sf::Time deltaTime)
 {
-    const float G = 2500.0f;
+    const float G = Settings::GravityConstant;
 
-    sf::Vector2f direction = other.m_position - m_position;
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    sf::Vector2f r = other.m_position - m_position;
 
-    if (distance == 0.f)
-        return;
+    const float eps2 = 25.f;
+    float d2 = r.x*r.x + r.y*r.y + eps2;
 
-    sf::Vector2f normalizedDirection = direction / distance;
-    float forceMagnitude = G * (m_mass * other.m_mass) / (distance * distance);
-    sf::Vector2f force = normalizedDirection * forceMagnitude;
+    float invD = 1.f / std::sqrt(d2);
+    sf::Vector2f dir = r * invD;
+
+    float forceMagnitude = G * (m_mass * other.m_mass) / d2;
+    sf::Vector2f force = dir * forceMagnitude;
 
     ApplyForce(force, deltaTime);
 }
@@ -57,4 +80,14 @@ void Body::ApplyGravityFromAll(const std::vector<Body>& bodies, sf::Time deltaTi
             ApplyGravityFromSingle(other, deltaTime);
         }
     }
+}
+
+const sf::Vector2f& Body::GetPosition() const
+{
+    return m_position;
+}
+
+float Body::GetMass() const
+{
+    return m_mass;
 }

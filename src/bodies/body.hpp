@@ -1,5 +1,7 @@
 #pragma once
 
+#include "trail_particle.hpp"
+
 #include <SFML/Graphics.hpp>
 
 class Body
@@ -16,6 +18,9 @@ public:
     void ApplyGravityFromSingle(const Body& other, sf::Time deltaTime);
     void ApplyGravityFromAll(const std::vector<Body>& bodies, sf::Time deltaTime);
 
+    [[nodiscard]] const sf::Vector2f& GetPosition() const;
+    [[nodiscard]] float GetMass() const;
+
 private:
     sf::Vector2f m_position;
     sf::Vector2f m_velocity;
@@ -24,4 +29,5 @@ private:
     float m_radius;
 
     sf::CircleShape m_shape;
+    std::vector<Particle> m_trail_particles;
 };
