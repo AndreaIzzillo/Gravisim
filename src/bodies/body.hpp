@@ -18,11 +18,16 @@ public:
     void ApplyGravityFromSingle(const Body& other, sf::Time deltaTime);
     void ApplyGravityFromAll(const std::vector<Body>& bodies, sf::Time deltaTime);
 
+    void SetCameraOffset(const sf::Vector2f& offset);
+    void EnableTrail(bool enable);
+    void ClearTrail();
+
     [[nodiscard]] const sf::Vector2f& GetPosition() const;
     [[nodiscard]] float GetMass() const;
 
 private:
     sf::Vector2f m_position;
+    sf::Vector2f m_camera_offset;
     sf::Vector2f m_velocity;
 
     float m_mass;
@@ -30,4 +35,5 @@ private:
 
     sf::CircleShape m_shape;
     std::vector<Particle> m_trail_particles;
+    bool m_trail_enabled;
 };

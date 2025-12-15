@@ -8,6 +8,7 @@ Body::Body(const sf::Vector2f& position, float mass, float radius, const sf::Col
     , m_mass(mass)
     , m_radius(radius)
     , m_shape(radius)
+    , m_trail_enabled(true)
 {
     m_shape.setFillColor(color);
     m_shape.setOrigin(sf::Vector2f(radius, radius));
@@ -19,30 +20,37 @@ void Body::Update(sf::Time deltaTime)
     float dt = deltaTime.asSeconds();
 
     m_position += m_velocity * dt;
-    m_shape.setPosition(m_position);
+    m_shape.setPosition(m_position + m_camera_offset);
 
-    for (auto& particle : m_trail_particles)
+    if (m_trail_enabled)
     {
-        particle.update(deltaTime);
+        for (auto &particle : m_trail_particles)
+        {
+            particle.update(deltaTime);
+        }
+
+        m_trail_particles.erase(
+            std::remove_if(
+                m_trail_particles.begin(),
+                m_trail_particles.end(),
+                [](const Particle &p)
+                { return !p.isAlive(); }),
+            m_trail_particles.end());
+
+        m_trail_particles.emplace_back(m_position + m_camera_offset, m_radius * 0.3f, 1.f);
     }
-
-    m_trail_particles.erase(
-        std::remove_if(
-            m_trail_particles.begin(),
-            m_trail_particles.end(),
-            [](const Particle& p) { return !p.isAlive(); }),
-        m_trail_particles.end());
-
-    m_trail_particles.emplace_back(m_position, m_radius * 0.3f, 1.f);
 }
 
 void Body::Render(sf::RenderWindow& window) const
 {
-    for (const auto& particle : m_trail_particles)
+    if (m_trail_enabled)
     {
-        particle.render(window);
+        for (const auto &particle : m_trail_particles)
+        {
+            particle.render(window);
+        }
     }
-    
+
     window.draw(m_shape);
 }
 
@@ -80,6 +88,21 @@ void Body::ApplyGravityFromAll(const std::vector<Body>& bodies, sf::Time deltaTi
             ApplyGravityFromSingle(other, deltaTime);
         }
     }
+}
+
+void Body::SetCameraOffset(const sf::Vector2f& offset)
+{
+    m_camera_offset = offset;
+}
+
+void Body::EnableTrail(bool enable)
+{
+    m_trail_enabled = enable;
+}
+
+void Body::ClearTrail()
+{
+    m_trail_particles.clear();
 }
 
 const sf::Vector2f& Body::GetPosition() const

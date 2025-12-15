@@ -19,6 +19,10 @@ Simulation::Simulation()
     m_timeScale = 1.f;
 
     m_window.setFramerateLimit(Settings::TargetFPS);
+
+    m_cameraOffset = sf::Vector2f(0.f, 0.f);
+
+    m_trailsEnabled = true;
 }
 
 void Simulation::AddBody(const Body& body)
@@ -71,9 +75,35 @@ void Simulation::ProcessEvents()
             {
                 m_timeScale = 1.f;
             }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::P)
+            {
+                m_trailsEnabled = !m_trailsEnabled;
+                m_bodyManager.ClearTrailsForAll();
+                m_bodyManager.EnableTrailsForAll(m_trailsEnabled);
+            }
             else if (keyEvent->scancode == sf::Keyboard::Scancode::Space)
             {
                 m_timeScale = (m_timeScale == 0.f) ? 1.f : 0.f;
+            }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::Right)
+            {
+                m_cameraOffset.x -= 20.f;
+                m_bodyManager.ClearTrailsForAll();
+            }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::Left)
+            {
+                m_cameraOffset.x += 20.f;
+                m_bodyManager.ClearTrailsForAll();
+            }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::Down)
+            {
+                m_cameraOffset.y -= 20.f;
+                m_bodyManager.ClearTrailsForAll();
+            }
+            else if (keyEvent->scancode == sf::Keyboard::Scancode::Up)
+            {
+                m_cameraOffset.y += 20.f;
+                m_bodyManager.ClearTrailsForAll();
             }
         }
     }
@@ -81,6 +111,7 @@ void Simulation::ProcessEvents()
 
 void Simulation::Update(sf::Time deltaTime)
 {
+    m_bodyManager.SetCameraOffsetForAll(m_cameraOffset);
     m_bodyManager.UpdateAll(deltaTime);
 }
 

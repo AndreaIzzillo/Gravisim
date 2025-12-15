@@ -27,4 +27,7 @@ private:
     float m_timeScale;
 
     BodyManager m_bodyManager;
+    sf::Vector2f m_cameraOffset;
+
+    bool m_trailsEnabled;
 };

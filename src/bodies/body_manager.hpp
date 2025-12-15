@@ -14,6 +14,10 @@ public:
     void UpdateAll(sf::Time deltaTime);
     void RenderAll(sf::RenderWindow& window) const;
 
+    void SetCameraOffsetForAll(const sf::Vector2f& offset);
+    void EnableTrailsForAll(bool enable);
+    void ClearTrailsForAll();
+
 private:
     std::vector<Body> m_bodies;
 };

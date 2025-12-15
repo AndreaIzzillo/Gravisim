@@ -5,7 +5,7 @@
 
 int main()
 {
-    LotOfBody()->Run();
+    SolarSystem()->Run();
 
     return 0;
 }
