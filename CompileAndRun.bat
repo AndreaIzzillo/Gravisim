@@ -1,9 +1,9 @@
 @echo off
 
-cmake --build build
+cmake --build build --config release
 if %errorlevel% neq 0 (
     echo Build failed!
     exit /b %errorlevel%
 )
 
-.\build\bin\Debug\main.exe
+.\build\bin\Release\main.exe

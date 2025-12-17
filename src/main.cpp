@@ -5,6 +5,6 @@
 
 int main()
 {
-    CircumbinaryTrojans().get()->Run();
+    SolarSystem()->Run();
     return 0;
 }
