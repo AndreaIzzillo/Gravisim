@@ -1,11 +1,10 @@
-#include "sim_circumbinarytrojans.hpp"
-#include "sim_lotofbody.hpp"
-#include "sim_solarsystem.hpp"
-#include "sim_threebody.hpp"
+#include "simulations/sim_circumbinarytrojans.hpp"
+#include "simulations/sim_lotofbody.hpp"
+#include "simulations/sim_solarsystem.hpp"
+#include "simulations/sim_threebody.hpp"
 
 int main()
 {
-    SolarSystem()->Run();
-
+    CircumbinaryTrojans().get()->Run();
     return 0;
 }

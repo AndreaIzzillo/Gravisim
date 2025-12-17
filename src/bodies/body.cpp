@@ -20,7 +20,7 @@ void Body::Update(sf::Time deltaTime)
     float dt = deltaTime.asSeconds();
 
     m_position += m_velocity * dt;
-    m_shape.setPosition(m_position + m_camera_offset);
+    m_shape.setPosition(m_position);
 
     if (m_trail_enabled)
     {
@@ -37,7 +37,7 @@ void Body::Update(sf::Time deltaTime)
                 { return !p.isAlive(); }),
             m_trail_particles.end());
 
-        m_trail_particles.emplace_back(m_position + m_camera_offset, m_radius * 0.3f, 1.f);
+        m_trail_particles.emplace_back(m_position, m_radius * 0.3f, 1.f);
     }
 }
 
@@ -88,11 +88,6 @@ void Body::ApplyGravityFromAll(const std::vector<Body>& bodies, sf::Time deltaTi
             ApplyGravityFromSingle(other, deltaTime);
         }
     }
-}
-
-void Body::SetCameraOffset(const sf::Vector2f& offset)
-{
-    m_camera_offset = offset;
 }
 
 void Body::EnableTrail(bool enable)

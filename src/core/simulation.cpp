@@ -14,13 +14,15 @@ Simulation::Simulation()
         sf::State::Windowed,
         settings);
 
+    m_view.setSize(sf::Vector2f(static_cast<float>(Settings::WindowWidth), static_cast<float>(Settings::WindowHeight)));
+    m_view.setCenter(sf::Vector2f(static_cast<float>(Settings::WindowWidth) / 2.f, static_cast<float>(Settings::WindowHeight) / 2.f));
+    m_window.setView(m_view);
+
     m_clock = sf::Clock();
     m_accumulator = sf::Time::Zero;
     m_timeScale = 1.f;
 
     m_window.setFramerateLimit(Settings::TargetFPS);
-
-    m_cameraOffset = sf::Vector2f(0.f, 0.f);
 
     m_trailsEnabled = true;
 }
@@ -39,12 +41,15 @@ void Simulation::Run()
         ProcessEvents();
 
         auto frameTime = m_clock.restart();
+
+        Update(frameTime);
+
         frameTime *= m_timeScale;
         m_accumulator += frameTime;
 
         while (m_accumulator >= fixedDt)
         {
-            Update(fixedDt);
+            FixedUpdate(fixedDt);
             m_accumulator -= fixedDt;
         }
 
@@ -61,49 +66,29 @@ void Simulation::ProcessEvents()
             m_window.close();
         }
 
-        if (const auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
+        if (const auto *keyEvent = event->getIf<sf::Event::KeyPressed>())
         {
             if (keyEvent->scancode == sf::Keyboard::Scancode::U)
             {
                 m_timeScale += 0.1f;
             }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::D)
+            if (keyEvent->scancode == sf::Keyboard::Scancode::D)
             {
                 m_timeScale = std::max(0.f, m_timeScale - 0.1f);
             }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::R)
+            if (keyEvent->scancode == sf::Keyboard::Scancode::R)
             {
                 m_timeScale = 1.f;
             }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::P)
+            if (keyEvent->scancode == sf::Keyboard::Scancode::P)
             {
                 m_trailsEnabled = !m_trailsEnabled;
                 m_bodyManager.ClearTrailsForAll();
                 m_bodyManager.EnableTrailsForAll(m_trailsEnabled);
             }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::Space)
+            if (keyEvent->scancode == sf::Keyboard::Scancode::Space)
             {
                 m_timeScale = (m_timeScale == 0.f) ? 1.f : 0.f;
-            }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::Right)
-            {
-                m_cameraOffset.x -= 20.f;
-                m_bodyManager.ClearTrailsForAll();
-            }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::Left)
-            {
-                m_cameraOffset.x += 20.f;
-                m_bodyManager.ClearTrailsForAll();
-            }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::Down)
-            {
-                m_cameraOffset.y -= 20.f;
-                m_bodyManager.ClearTrailsForAll();
-            }
-            else if (keyEvent->scancode == sf::Keyboard::Scancode::Up)
-            {
-                m_cameraOffset.y += 20.f;
-                m_bodyManager.ClearTrailsForAll();
             }
         }
     }
@@ -111,7 +96,30 @@ void Simulation::ProcessEvents()
 
 void Simulation::Update(sf::Time deltaTime)
 {
-    m_bodyManager.SetCameraOffsetForAll(m_cameraOffset);
+    float speed = 50.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LShift))
+        speed = 200.f;
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl))
+        speed = 10.f;
+
+    sf::Vector2f cameraDelta(0.f, 0.f);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right))
+        cameraDelta.x += 10.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Left))
+        cameraDelta.x -= 10.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Down))
+        cameraDelta.y += 10.f;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Up))
+        cameraDelta.y -= 10.f;
+
+    cameraDelta *= deltaTime.asSeconds() * speed;
+
+    m_view.move(cameraDelta);
+    m_window.setView(m_view);
+}
+
+void Simulation::FixedUpdate(sf::Time deltaTime)
+{
     m_bodyManager.UpdateAll(deltaTime);
 }
 
