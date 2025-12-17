@@ -1,5 +1,6 @@
 #!/bin/sh
 
-cmake --build build --config release
-chmod +x ./build/bin/Release/main
-./build/bin/Release/main
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+chmod +x ./build/bin/main
+./build/bin/main

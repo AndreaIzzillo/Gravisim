@@ -1,6 +1,6 @@
-#include "core/core_settings.hpp"
-#include "core/simulation.hpp"
-#include "bodies/body.hpp"
+#include "../core/core_settings.hpp"
+#include "../core/simulation.hpp"
+#include "../bodies/body.hpp"
 
 #include <array>
 #include <random>
@@ -84,7 +84,7 @@ std::unique_ptr<Simulation> CircumbinaryTrojans()
     std::uniform_real_distribution<float> distR(220.f, 520.f);
     std::normal_distribution<float> distSpeedNoise(0.f, 0.045f);
 
-    const int N = 120;
+    const int N = 240;
     for (int i = 0; i < N; ++i)
     {
         float r = distR(rng);

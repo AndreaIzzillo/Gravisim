@@ -1,6 +1,6 @@
-#include "core/core_settings.hpp"
-#include "core/simulation.hpp"
-#include "bodies/body.hpp"
+#include "../core/core_settings.hpp"
+#include "../core/simulation.hpp"
+#include "../bodies/body.hpp"
 
 std::unique_ptr<Simulation> ThreeBody()
 {
